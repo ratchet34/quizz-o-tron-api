@@ -1,5 +1,6 @@
-import AWS from 'aws-sdk';
-import https from 'https';
+
+const AWS = require('aws-sdk');
+const https = require('https');
 
 const sslAgent = new https.Agent({
   keepAlive: true,
@@ -19,5 +20,7 @@ AWS.config.update({
   }
 });
 
-export const dynamoClient = new AWS.DynamoDB();
-export const dynamoDocumentClient = new AWS.DynamoDB.DocumentClient();
+module.exports = {
+  dynamoClient: new AWS.DynamoDB(),
+  dynamoDocumentClient: new AWS.DynamoDB.DocumentClient()
+};

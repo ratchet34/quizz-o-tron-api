@@ -4,8 +4,10 @@
   "main": "handler.js",
   "scripts": {
     "test": "serverless-bundle test",
+    "local": "node local.js",
     "dev": "node local.js",
     "deploy-dev": "serverless deploy",
+    "lint:eslint": "eslint --ignore-path .gitignore",
     "lint": "npm run lint:eslint -- --fix ."
   },
   "author": "",
@@ -25,6 +27,5 @@
     "express": "^4.17.1",
     "serveless": "0.0.2",
     "serverless-http": "^2.6.0"
-  },
-  "type": "module"
+  }
 }

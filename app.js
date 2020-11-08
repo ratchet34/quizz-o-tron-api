@@ -1,5 +1,5 @@
-import express from 'express';
-import getItem from './get';
+const express = require('express');
+const get = require('./get');
 
 console.log('got in app.js main');
 
@@ -15,7 +15,7 @@ router.get('/test', (req, res) => {
 });
 
 router.get('/item/:id', (req, res) => {
-  const item = getItem(req.params.id);
+  const item = get.getItem(req.params.id);
   console.log('got in app.js get /item');
   if (!item) return res.status(404).json({});
 
@@ -24,4 +24,4 @@ router.get('/item/:id', (req, res) => {
 
 app.use('/', router);
 
-export default app;
+module.exports = app;

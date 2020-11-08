@@ -1,7 +1,6 @@
-const dyn = require('./helper/dynamo.js');
+const { dynamoClient } = require('./helper/dynamo.js');
 
 console.log('got in get.js');
-const dynamoDb = dyn.dynamoClient;
 
 const getItem = (id) => {
   console.log('got in getItem function');
@@ -13,7 +12,7 @@ const getItem = (id) => {
     }
   };
 
-  const result = dynamoDb.get(params);
+  const result = dynamoClient.get(params);
   if (!result.Item) {
     throw new Error('Item not found.');
   }
@@ -22,4 +21,4 @@ const getItem = (id) => {
   return result.Item;
 };
 
-export default getItem;
+module.exports = { getItem };
