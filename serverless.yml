@@ -13,5 +13,13 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
-  stage: prod
-  region: us-east-1
+  stage: dev
+  region: eu-west-3
+
+functions:
+  api:
+    handler: lambda.handler
+    events: 
+      - http:
+          path: /{path+}
+          method: ANY
