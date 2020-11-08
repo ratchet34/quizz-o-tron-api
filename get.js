@@ -1,9 +1,10 @@
-import handler from './libs/handler-lib';
-import { dynamoClient, dynamoDocumentClient } from './helper/dynamo';
+const dyn = require('./helper/dynamo.js');
 
-const dynamoDb = dynamoClient();
+console.log('got in get.js');
+const dynamoDb = dyn.dynamoClient;
 
-const getItem = handler(async (id, context) => {
+const getItem = (id) => {
+  console.log('got in getItem function');
   const params = {
     TableName: 'quizz-o-tron-items',
     // 'Key' defines the partition key and sort key of the item to be retrieved
@@ -12,13 +13,13 @@ const getItem = handler(async (id, context) => {
     }
   };
 
-  const result = await dynamoDb.get(params);
+  const result = dynamoDb.get(params);
   if (!result.Item) {
     throw new Error('Item not found.');
   }
 
   // Return the retrieved item
   return result.Item;
-});
+};
 
 export default getItem;
