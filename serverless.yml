@@ -5,11 +5,6 @@ service: quizz-o-tron-api
 package:
   individually: true
 
-plugins:
-  - serverless-bundle # Package our functions with Webpack
-  - serverless-offline
-  - serverless-dotenv-plugin # Load .env as environment variables
-
 provider:
   name: aws
   runtime: nodejs12.x
