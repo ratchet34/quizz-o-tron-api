@@ -5,20 +5,24 @@ const getItem = han.handler(async (itemId) => {
   const params = {
     TableName: 'quizz-o-tron-items',
     // 'Key' defines the partition key and sort key of the item to be retrieved
-    Key: {
-      id: itemId
+    KeyConditionExpression: '#id = :itemId',
+    ExpressionAttributeNames: {
+      '#id': 'id'
+    },
+    ExpressionAttributeValues: {
+      ':itemId': itemId
     }
   };
 
-  const result = await dynamoDb.get(params);
+  const result = await dynamoDb.query(params);
 
-  if (!result.Item) {
+  if (!result.Items) {
     throw new Error('Item not found.');
   } else {
-    console.log(`Item found : ${result.Item}`);
+    console.log(`Item found : ${result.Items}`);
   }
   // Return the retrieved item
-  return result.Item;
+  return result.Items;
 });
 
 const getItemByType = han.handler(async (itemType) => {
@@ -31,15 +35,15 @@ const getItemByType = han.handler(async (itemType) => {
     // 'ExpressionAttributeValues' defines the value in the condition
     // - ':userId': defines 'userId' to be Identity Pool identity id
     //   of the authenticated user
-    KeyConditionExpression: 'type = :itemType',
-    ExpressionAttributeValues: {
-      ':itemType': itemType
-    }
+    FilterExpression: '#itemType = :itemType',
+    ExpressionAttributeNames: { '#itemType': 'itemType' },
+    ExpressionAttributeValues: { ':itemType': itemType }
   };
 
-  const result = await dynamoDb.query(params);
+  const result = await dynamoDb.scan(params);
 
   if (!result.Items) {
+    console.log(result);
     throw new Error('Item not found.');
   } else {
     console.log(`Items found : ${result.Items}`);

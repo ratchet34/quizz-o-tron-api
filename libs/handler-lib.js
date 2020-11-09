@@ -4,7 +4,6 @@ const handler = (lambda) => {
       statusCode;
 
     try {
-      console.log('Running the lambda');
       // Run the Lambda
       body = await lambda(event);
       statusCode = 200;

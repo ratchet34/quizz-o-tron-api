@@ -15,15 +15,15 @@ router.get('/test', (req, res) => {
   res.send('Hello World!');
 });
 
-router.get('/item/id/:itemId', async (req, res) => {
+router.get('/item/:itemId', async (req, res) => {
   const item = await get.getItem(req.params.itemId);
   if (!item) return res.status(404).json({});
 
   return res.json(item.body);
 });
 
-router.get('/item/type/:itemType', async (req, res) => {
-  const item = await get.getItem(req.params.itemType);
+router.get('/item?itemType="audio"', async (req, res) => {
+  const item = await get.getItemByType(req.query.itemType);
   if (!item) return res.status(404).json({});
 
   return res.json(item.body);

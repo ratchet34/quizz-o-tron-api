@@ -24,4 +24,12 @@ functions:
           - ''
           - - 'https://'
             - !Ref ApiGatewayRestApi
-            - '.execute-api.${self:provider.region}.amazonaws.com/${self:custom.stage}'
+            - '.execute-api.${self:provider.region}.amazonaws.com/${self:provider.stage}'
+  create:
+    handler: create.main
+    events:
+      - http:
+          path: notes
+          method: post
+          cors: true
+          authorizer: aws_iam
