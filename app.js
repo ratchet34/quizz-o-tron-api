@@ -22,7 +22,7 @@ router.get('/item/:itemId', async (req, res) => {
   return res.json(item.body);
 });
 
-router.get('/item?itemType="audio"', async (req, res) => {
+router.get('/item?itemType=audio', async (req, res) => {
   const item = await get.getItemByType(req.query.itemType);
   if (!item) return res.status(404).json({});
 
