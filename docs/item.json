@@ -1,10 +1,21 @@
 {
-    "get" : {
-        "tags" : ["test"],
-        "operationId": "GetItem",
-        "responses": {
-            "200": {
-                "description":"your item"
+    "/item" : {
+        "get" : {
+            "tags" : ["test"],
+            "operationId": "GetItem",
+            "parameters": [
+                {
+                  "name": "type",
+                  "in": "query",
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ],
+            "responses": {
+                "200": {
+                    "description":"your item"
+                }
             }
         }
     }

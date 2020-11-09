@@ -1,13 +1,7 @@
-const blob = require('require-glob');
-
 const allpaths = () => {
-  const paths = blob.sync('./docs/*.json');
-  const returnPaths = {};
-  Object.keys(paths).forEach((key) => {
-    returnPaths[`/${key}`] = { ...paths[key] };
-  });
-  console.log('returnPaths', returnPaths);
-  return returnPaths;
+  const paths = Object.values(require('require-glob').sync('./docs/*.json'));
+  console.log(paths)
+  return paths
 };
 
 const getServer = () => {

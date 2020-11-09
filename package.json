@@ -1,10 +1,10 @@
 {
   "name": "quizz-o-tron-api",
-  "version": "2.2.0",
+  "version": "0.0.1",
   "main": "handler.js",
   "scripts": {
     "local": "cross-env NODE_ENV=local node local.js",
-    "deploy-dev": "serverless deploy",
+    "deploy": "serverless deploy",
     "lint:eslint": "eslint --ignore-path .gitignore",
     "lint": "npm run lint:eslint -- --fix ."
   },
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.787.0",
-    "aws-serverless-express": "^3.3.8",
+    "aws-serverless-express": "^3.3.8",   
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "require-glob": "^3.2.0",
