@@ -6,8 +6,8 @@ const cors = require('cors');
 
 const app = express();
 const router = express.Router();
-const swaggerUi = require('swagger-ui-express'),
-swaggerDocument = require('./docs.js');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./docs.js');
 
 router.use(cors());
 
