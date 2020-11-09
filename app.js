@@ -11,7 +11,7 @@ const swaggerDocument = require('./docs.js');
 
 router.use(cors());
 
-router.get('/', (req, res) => {
+router.get('/up', (req, res) => {
   res.send('Hello World!');
 });
 
@@ -22,11 +22,13 @@ router.get('/item/:itemId', async (req, res) => {
   return res.json(item.body);
 });
 
-router.get('/item?itemType="audio"', async (req, res) => {
-  const item = await get.getItemByType(req.query.itemType);
-  if (!item) return res.status(404).json({});
+router.get('/item', async (req, res) => {
+  if (req.query.itemType === 'audio') {
+    const item = await get.getItemByType(req.query.itemType);
+    if (!item) return res.status(404).json({});
 
-  return res.json(item.body);
+    return res.json(item.body);
+  }
 });
 
 router.post('/item', async (req, res) => {
