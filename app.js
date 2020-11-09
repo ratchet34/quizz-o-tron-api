@@ -6,6 +6,8 @@ const cors = require('cors');
 
 const app = express();
 const router = express.Router();
+const swaggerUi = require('swagger-ui-express'),
+swaggerDocument = require('./docs.js');
 
 router.use(cors());
 
@@ -50,6 +52,7 @@ router.post('/item', async (req, res) => {
   return res.json(result);
 });
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/', router);
 
 module.exports = app;

@@ -18,3 +18,10 @@ functions:
       - http:
           path: /{path+}
           method: ANY
+    environment:
+      APIG_URL:
+        !Join
+          - ''
+          - - 'https://'
+            - !Ref ApiGatewayRestApi
+            - '.execute-api.${self:provider.region}.amazonaws.com/${self:custom.stage}'

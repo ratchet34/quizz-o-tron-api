@@ -1,0 +1,11 @@
+{
+    "get" : {
+        "tags" : ["test"],
+        "operationId": "GetItem",
+        "responses": {
+            "200": {
+                "description":"your item"
+            }
+        }
+    }
+}
