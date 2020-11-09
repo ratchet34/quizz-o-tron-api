@@ -1,12 +1,69 @@
 {
     "/item" : {
         "get" : {
-            "tags" : ["test"],
+            "tags" : ["item"],
             "operationId": "GetItem",
             "parameters": [
                 {
-                  "name": "type",
+                  "name": "itemType",
+                  "description": "type of your item",
                   "in": "query",
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ],
+            "responses": {
+                "200": {
+                    "description":"your item"
+                }
+            }
+        },
+        "post":  {
+            "tags" : ["item"],
+            "operationId": "CreateItem",
+            "parameters": [],
+            "requestBody": {
+                "required": true,
+                "description": "item to add to the database",
+                "content": {
+                  "application/json": {
+                      "schema" : {
+                          "type" : "object",
+                          "properties": {
+                                "title" : {
+                                    "type" : "string"
+                                },
+                                "artist" : {
+                                    "type" : "string"
+                                },
+                                "origin" : {
+                                    "type" : "string"
+                                },
+                                "type": {
+                                    "type" : "string"
+                                }
+                            },
+                            "required" : ["type"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description":"your item"
+                }
+            }
+        }
+    },
+    "/item/{itemId}" : {
+        "get" : {
+            "tags" : ["item"],
+            "operationId": "GetItemById",
+            "parameters": [
+                {
+                  "name": "itemId",
+                  "in": "path",
                   "schema": {
                     "type": "string"
                   }

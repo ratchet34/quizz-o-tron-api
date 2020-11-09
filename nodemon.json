@@ -1,0 +1,8 @@
+{
+    "watch": [
+        "./"
+    ],
+    "verbose": true,
+    "ignore": [
+    ]
+}

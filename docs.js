@@ -1,6 +1,8 @@
 const allpaths = () => {
-  const paths = Object.values(require('require-glob').sync('./docs/*.json'));
-  console.log(paths)
+  let paths = {}
+  Object.values(require('require-glob').sync('./docs/*.json')).forEach(path => {
+    paths = {...paths, ...path}
+  });
   return paths
 };
 
