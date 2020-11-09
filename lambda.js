@@ -6,4 +6,8 @@ console.log(app);
 const server = awsServerlessExpress.createServer(app);
 console.log(server);
 
-exports.handler = (event, context) => { awsServerlessExpress.proxy(server, event, context); };
+exports.handler = (event, context, callback) => {
+  awsServerlessExpress.proxy(server, event, context).on('error', (e) => {
+    callback(Error(e));
+  });
+};
