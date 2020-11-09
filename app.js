@@ -11,7 +11,7 @@ const swaggerDocument = require('./docs.js');
 
 router.use(cors());
 
-router.get('/test', (req, res) => {
+router.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
