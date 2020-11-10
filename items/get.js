@@ -1,5 +1,5 @@
-const han = require('./libs/handler-lib');
-const dynamoDb = require('./libs/dynamodb-lib');
+const han = require('../libs/handler-lib');
+const dynamoDb = require('../libs/dynamodb-lib');
 
 const getItem = han.handler(async (itemId) => {
   const params = {
@@ -52,4 +52,22 @@ const getItemByType = han.handler(async (itemType) => {
   return result.Items;
 });
 
-module.exports = { getItem, getItemByType };
+const getAllItemIds = han.handler(async () => {
+  const params = {
+    TableName: 'quizz-o-tron-games',
+    AttributesToGet: ['id']
+  }
+
+  const result = await dynamoDb.scan(params);
+
+  if (!result.Items) {
+    console.log(result);
+    throw new Error('Items not found.');
+  } else {
+    console.log(`Items found`);
+  }
+  // Return the retrieved item
+  return result.Items;
+})
+
+module.exports = { getItem, getItemByType, getAllItemIds };

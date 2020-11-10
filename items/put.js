@@ -1,5 +1,5 @@
-const han = require('./libs/handler-lib');
-const dynamoDb = require('./libs/dynamodb-lib');
+const han = require('../libs/handler-lib');
+const dynamoDb = require('../libs/dynamodb-lib');
 
 const putItem = han.handler(async (item) => {
   const params = {

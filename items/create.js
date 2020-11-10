@@ -1,4 +1,4 @@
-const dynamoDb = require('./libs/dynamodb-lib');
+const dynamoDb = require('../libs/dynamodb-lib');
 
 var allData = [
   {

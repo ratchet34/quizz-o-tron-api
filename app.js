@@ -1,6 +1,7 @@
 const express = require('express');
-const get = require('./get');
-const put = require('./put');
+const getItem = require('./items/get');
+const putItem = require('./items/put');
+const putGame = require('./items/put');
 
 const cors = require('cors');
 
@@ -16,7 +17,7 @@ router.get('/up', (req, res) => {
 });
 
 router.get('/item/:itemId', async (req, res) => {
-  const item = await get.getItem(req.params.itemId);
+  const item = await getItem.getItem(req.params.itemId);
   if (!item) return res.status(404).json({});
 
   return res.json(item.body);
@@ -24,7 +25,7 @@ router.get('/item/:itemId', async (req, res) => {
 
 router.get('/item', async (req, res) => {
   if (req.query.itemType === 'audio') {
-    const item = await get.getItemByType(req.query.itemType);
+    const item = await getItem.getItemByType(req.query.itemType);
     if (!item) return res.status(404).json({});
 
     return res.json(item.body);
@@ -50,9 +51,18 @@ router.post('/item', async (req, res) => {
     item.origin = req.body.origin;
   }
 
-  const result = await put.putItem(item);
+  const result = await putItem.putItem(item);
   return res.json(result);
 });
+
+router.post('/game', async (req, res) => {
+  const game;
+  if('host' in req.body) {
+    game.host = req.body.host
+  }
+  const result = putGame.putGame(game);
+  return res.json(result);
+})
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/', router);
