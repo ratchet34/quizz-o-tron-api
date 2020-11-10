@@ -3,6 +3,7 @@ const getItem = require('./items/get');
 const putItem = require('./items/put');
 const getGame = require('./games/get');
 const putGame = require('./games/put');
+const bodyParser = require('body-parser');
 
 const cors = require('cors');
 
@@ -12,6 +13,14 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs.js');
 
 router.use(cors());
+router.use(bodyParser.json());
+router.use((req, res, next) => {
+  console.log('received method:' + req.method);
+  console.log('received body:' + JSON.stringify(req.body));
+  console.log('received params:' + JSON.stringify(req.params));
+  console.log('received query:' + JSON.stringify(req.query));
+  next();
+})
 
 router.get('/up', (req, res) => {
   res.send('Hello World!');
@@ -65,11 +74,12 @@ router.get('/game/:gameId', async (req, res) => {
 
 router.post('/game', async (req, res) => {
   var game = {};
-  if('host' in req.body) {
-    game.host = req.body.host
+  if(req.body && req.body.host && req.body.gameType) {
+    game.host = req.body.host;
+    game.gameType = req.body.gameType;
+    const result = await putGame.putGame(game);
+    return res.json(result);
   }
-  const result = putGame.putGame(game);
-  return res.json(result);
 })
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

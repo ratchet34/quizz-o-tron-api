@@ -54,7 +54,7 @@ const getItemByType = han.handler(async (itemType) => {
 
 const getAllItemIds = han.handler(async () => {
   const params = {
-    TableName: 'quizz-o-tron-games',
+    TableName: 'quizz-o-tron-items',
     AttributesToGet: ['id']
   }
 

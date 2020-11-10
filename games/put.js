@@ -12,7 +12,7 @@ const putGame = han.handler(async (game) => {
 
   game.id = uuidv4();
   game.seed = seed;
-  game.currentItem = items[Math.floor(saveable() * items.length())];
+  game.currentItem = items.body[Math.floor(saveable() * items.body.length)].id;
   game.players = [{name: game.host, points: 0, status: 'ready'}];
   game.doneItems = [game.currentItem];
   game.state = 'init';

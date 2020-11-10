@@ -18,6 +18,7 @@ functions:
       - http:
           path: /{path+}
           method: ANY
+          cors: true
     environment:
       APIG_URL:
         !Join
