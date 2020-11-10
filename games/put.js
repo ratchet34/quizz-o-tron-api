@@ -17,6 +17,8 @@ const putGame = han.handler(async (game) => {
   game.doneItems = [game.currentItem];
   game.state = 'init';
   game.randomState = saveable.state();
+  // Expire in 7 days
+  game.expdate = Math.floor((new Date().getTime()/ 1000) + 7 * 24 * 3600)
 
   const params = {
     TableName: 'quizz-o-tron-games',

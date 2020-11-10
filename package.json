@@ -23,6 +23,7 @@
     "express": "^4.17.1",
     "require-glob": "^3.2.0",
     "seedrandom": "^3.0.5",
-    "swagger-ui-express": "^4.1.4"
+    "swagger-ui-express": "^4.1.4",
+    "uuid": "^8.3.1"
   }
 }

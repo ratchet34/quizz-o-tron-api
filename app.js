@@ -1,7 +1,8 @@
 const express = require('express');
 const getItem = require('./items/get');
 const putItem = require('./items/put');
-const putGame = require('./items/put');
+const getGame = require('./games/get');
+const putGame = require('./games/put');
 
 const cors = require('cors');
 
@@ -55,8 +56,15 @@ router.post('/item', async (req, res) => {
   return res.json(result);
 });
 
+router.get('/game/:gameId', async (req, res) => {
+  const game = await getGame.getGame(req.params.gameId);
+  if (!game) return res.status(404).json({});
+
+  return res.json(game.body);
+});
+
 router.post('/game', async (req, res) => {
-  const game;
+  var game = {};
   if('host' in req.body) {
     game.host = req.body.host
   }
