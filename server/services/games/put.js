@@ -1,5 +1,5 @@
-const han = require('../libs/handler-lib');
-const dynamoDb = require('../libs/dynamodb-lib');
+const han = require('../../../libs/handler-lib');
+const dynamoDb = require('../../../libs/dynamodb-lib');
 const getItem = require('../items/get');
 const seedrandom = require('seedrandom');
 const { v4: uuidv4 } = require('uuid');
