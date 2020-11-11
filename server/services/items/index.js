@@ -2,8 +2,8 @@
 const getItem = require('./get');
 const putItem = require('./put');
 
-async function getItems (req, res) {
-    if (req.query.itemType === 'audio') {
+const getItems = async (req, res) => {
+    if (req.query.itemType && req.query.itemType === 'audio') {
       const item = await getItem.getItemByType(req.query.itemType);
       if (!item) res.status(404).json({});
   

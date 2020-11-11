@@ -16,10 +16,10 @@ const getItem = han.handler(async (itemId) => {
 
   const result = await dynamoDb.query(params);
 
-  if (!result.Items) {
+  if (result.Items.length === 0) {
     throw new Error('Item not found.');
   } else {
-    console.log(`Item found : ${result.Items}`);
+    console.log(`Item found : ${result.Items.length}`);
   }
   // Return the retrieved item
   return result.Items;
