@@ -7,7 +7,7 @@ const
 let router = express.Router();
 
 router.get('/:gameId', gameService.getGameWithId);
-router.post('/', gameService.putGameWithHostAndId);
-router.patch('/', gameService.joinGame)
+router.post('/', gameService.createGame);
+router.patch('/', gameService.updateGame)
 
 module.exports = router;

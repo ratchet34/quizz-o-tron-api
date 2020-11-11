@@ -4,7 +4,7 @@ const getItem = require('../items/get');
 const seedrandom = require('seedrandom');
 const { v4: uuidv4 } = require('uuid');
 
-const putGame = han.handler(async (game) => {
+const createGameWithHostAndId = han.handler(async (game) => {
 
   const seed = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
   const saveable = seedrandom(seed, {state: true});
@@ -30,4 +30,4 @@ const putGame = han.handler(async (game) => {
   return { id: game.id, host: game.host, seed: game.seed, currentItem: game.currentItem, players: game.players, state: game.state };
 });
 
-module.exports = { putGame };
+module.exports = { createGameWithHostAndId };
