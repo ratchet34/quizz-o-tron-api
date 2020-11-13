@@ -4,16 +4,19 @@ const getItem = require('../items/get');
 const seedrandom = require('seedrandom');
 const { v4: uuidv4 } = require('uuid');
 
-const createGameWithHostAndId = han.handler(async (game) => {
+const createGameWithHostAndId = han.handler(async ( {host, gameType} ) => {
 
+  var game = {};
   const seed = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
   const saveable = seedrandom(seed, {state: true});
   const items = await getItem.getAllItemIds();
 
   game.id = uuidv4();
   game.seed = seed;
+  game.host = host;
+  game.gameType = gameType;
   game.currentItem = items.body[Math.floor(saveable() * items.body.length)].id;
-  game.players = { [game.host]: { points: 0, status: 'creating' } };
+  game.players = { [game.host]: { points: 0, status: 'ready' } };
   game.doneItems = [game.currentItem];
   game.state = 'init';
   game.randomState = saveable.state();

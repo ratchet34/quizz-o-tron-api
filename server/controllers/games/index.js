@@ -6,7 +6,7 @@ const
 
 let router = express.Router();
 
-router.get('/:gameId', gameService.getGameWithId);
+router.get('/:gameId', gameService.getGames);
 router.post('/', gameService.createGame);
 router.patch('/', gameService.updateGame)
 
