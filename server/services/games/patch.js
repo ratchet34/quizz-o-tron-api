@@ -83,6 +83,32 @@ const updateStatus = han.handler(async ({gameId, username, state}) => {
   }
   
   return { id: gameId, state: result.Attributes.state };
-})
+});
 
-module.exports = { joinGameWithId, updatePlayerStatus, updateStatus };
+const removePlayer = han.handler(async ({gameId, username}) => {
+  var params = {
+    TableName: 'quizz-o-tron-games',
+    Key:{
+        'id': gameId
+    },
+    UpdateExpression: `REMOVE #pl.#user`,
+    ConditionExpression: `attribute_exists(#pl.#user)`,
+    ExpressionAttributeNames: {
+      '#pl': 'players',
+      '#user': username
+    },
+    ReturnValues:"ALL_NEW"
+  };
+
+  const result = await dynamoDb.update(params);
+
+  if (!result.Attributes) {
+    throw new Error('Update failed');
+  } else {
+    console.log(`Update successful : ${result.Attributes}`);
+  }
+  
+  return { id: gameId, players: result.Attributes.players };
+});
+
+module.exports = { joinGameWithId, updatePlayerStatus, updateStatus, removePlayer };

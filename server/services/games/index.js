@@ -8,7 +8,10 @@ const updateGame = async (req, res) => {
     const result = await patchGame.updatePlayerStatus( {gameId: req.body.gameId, username: req.body.username, status: req.body.status} );
     return res.json(result);
   } else if( req.body.state && req.body.gameId && req.body.username ) {
-    const result = await patchGame.updateStatus( {gameId: req.body.gameId, username: req.body.username} );
+    const result = await patchGame.updateStatus( {gameId: req.body.gameId, username: req.body.username, state: req.body.state} );
+    return res.json(result);
+  } else if ( req.body.remove && req.body.gameId && req.body.username ) {
+    const result = await patchGame.removePlayer( {gameId: req.body.gameId, username: req.body.username} );
     return res.json(result);
   } else if( req.body.gameId && req.body.username) {
     const result = await patchGame.joinGameWithId( {gameId: req.body.gameId, username: req.body.username} );

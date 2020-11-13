@@ -4,12 +4,8 @@ const dynamoDb = require('../../../libs/dynamodb-lib');
 const getGame = han.handler(async (gameId) => {
   const params = {
     TableName: 'quizz-o-tron-games',
-    KeyConditionExpression: '#id = :gameId',
-    ExpressionAttributeNames: {
-      '#id': 'id'
-    },
-    ExpressionAttributeValues: {
-      ':gameId': gameId
+    Key: {
+      "id" : gameId
     }
   };
 
@@ -21,7 +17,7 @@ const getGame = han.handler(async (gameId) => {
     console.log(`Game found : ${result.Item}`);
   }
   
-  return { host: result.Item.host, seed: result.Item.seed, currentItem: result.Item.currentItem, players: result.Item.players, state: result.Item.state };
+  return { id: result.Item.id, host: result.Item.host, seed: result.Item.seed, currentItem: result.Item.currentItem, players: result.Item.players, state: result.Item.state };
 });
 
 const getPlayers = han.handler(async (gameId) => {
