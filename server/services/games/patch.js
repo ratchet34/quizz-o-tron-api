@@ -1,5 +1,7 @@
 const han = require('../../../libs/handler-lib');
 const dynamoDb = require('../../../libs/dynamodb-lib');
+const getGames = require('./get');
+const { gameStates, itemTypes } = require('../../../libs/enums');
 
 
 const joinGameWithId = han.handler(async ({gameId, username}) => {
@@ -66,7 +68,7 @@ const updateStatus = han.handler(async ({gameId, username, state}) => {
     Key:{
         'id': gameId
     },
-    UpdateExpression: `SET state = ${state}`,
+    UpdateExpression: `SET state = ${gameStates[state]}`,
     ConditionExpression: `host=:host`,
     ExpressionAttributeValues: {
       ':host' : username
@@ -111,4 +113,82 @@ const removePlayer = han.handler(async ({gameId, username}) => {
   return { id: gameId, players: result.Attributes.players };
 });
 
-module.exports = { joinGameWithId, updatePlayerStatus, updateStatus, removePlayer };
+const nextItem = han.handler(async ({gameId, username, itemType}) => {
+  var game = await getGames.getGame(gameId);
+
+  const saveable = seedrandom('', {state: game.randomState});
+  
+  if (username === game.host) {
+    const items = game.customItems[itemType]?game.customItems[itemType]:await getItem.getAllItemIds().body;
+    game.currentItem = items[Math.floor(saveable() * items.length)].id;
+    game.randomState = saveable.state();
+
+    var params = {
+      TableName: 'quizz-o-tron-games',
+      Key:{
+          'id': gameId
+      },
+      UpdateExpression: `SET #ci = :ci, #rs = :rs`,
+      ExpressionAttributeNames: {
+        '#ci': 'currentItem',
+        '#rs': 'randomState'
+      },
+      ExpressionAttributeValues: {
+        ':ci': game.currentItem,
+        ':rs': game.randomState
+      },
+      ReturnValues:"ALL_NEW"
+    };
+
+    const result = await dynamoDb.update(params);
+
+    if (!result.Attributes) {
+      throw new Error('Update failed');
+    } else {
+      console.log(`Update successful : ${result.Attributes}`);
+    }
+    
+    return { id: gameId, currentItem: result.Attributes.currentItem, randomState: result.Attributes.randomState };
+  } else {
+    throw new Error('You are not the host of the game');
+  }
+});
+
+const setCustomItems = han.handler(async ({gameId, username, customItems, itemType}) => {
+  
+  if (itemTypes.includes(itemType)) {
+
+    var params = {
+      TableName: 'quizz-o-tron-games',
+      Key:{
+          'id': gameId
+      },
+      UpdateExpression: `SET #ci.#it = :ci`,
+      ConditionExpression: `#h = :u`,
+      ExpressionAttributeNames: {
+        '#ci': 'customItems',
+        '#it': itemType,
+        '#h': 'host',
+      },
+      ExpressionAttributeValues: {
+        ':ci': customItems,
+        ':u': username,
+      },
+      ReturnValues:"ALL_NEW"
+    };
+
+    const result = await dynamoDb.update(params);
+
+    if (!result.Attributes) {
+      throw new Error('Update failed');
+    } else {
+      console.log(`Update successful : ${result.Attributes}`);
+    }
+    
+    return { id: gameId, customItems: result.Attributes.customItems };
+  } else {
+    throw new Error('ItemType does not exists');
+  }
+});
+
+module.exports = { joinGameWithId, updatePlayerStatus, updateStatus, removePlayer, nextItem, setCustomItems };

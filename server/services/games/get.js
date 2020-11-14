@@ -1,5 +1,6 @@
 const han = require('../../../libs/handler-lib');
 const dynamoDb = require('../../../libs/dynamodb-lib');
+const getItem = require('../items/get');
 
 const getGame = han.handler(async (gameId) => {
   const params = {

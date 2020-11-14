@@ -1,22 +1,24 @@
 'use strict';
 const getItem = require('./get');
 const putItem = require('./put');
+const { itemTypes } = require('../../../libs/enums');
 
 const getItems = async (req, res) => {
-    if (req.query.itemType && req.query.itemType === 'audio') {
-      const item = await getItem.getItemByType(req.query.itemType);
-      if (!item) res.status(404).json({});
-  
-      res.json(item.body);
+    if (req.query.itemType && itemTypes.includes(req.query.itemType)) {
+      const result = await getItem.getItemByType(req.query.itemType);
+      if (!result) res.status(404).json({});
+      res.json(result);
     }
-    res.status(404).send("NOT_FOUND")
+    else {
+      res.status(404).send("NOT_FOUND");
+    }
 }
 
 const getItemWithId = async (req, res) => {
-    const item = await getItem.getItem(req.params.itemId);
-    if (!item) return res.status(404).json({});
+    const result = await getItem.getItem(req.params.itemId);
+    if (!result) return res.status(404).json({});
 
-    return res.json(item.body);
+    return res.json(result);
 }
 
 const createItem = async (req, res) => {
