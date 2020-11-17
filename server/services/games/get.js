@@ -18,18 +18,14 @@ const getGame = han.handler(async (gameId) => {
     console.log(`Game found : ${result.Item}`);
   }
   
-  return { id: result.Item.id, host: result.Item.host, seed: result.Item.seed, currentItem: result.Item.currentItem, players: result.Item.players, state: result.Item.state };
+  return { id: result.Item.id, host: result.Item.host, seed: result.Item.seed, currentItem: result.Item.currentItem, customItems: result.Item.customItems, players: result.Item.players, state: result.Item.state, itemType: result.Item.itemType, randomState: result.Item.randomState };
 });
 
 const getPlayers = han.handler(async (gameId) => {
   const params = {
     TableName: 'quizz-o-tron-games',
-    KeyConditionExpression: '#id = :gameId',
-    ExpressionAttributeNames: {
-      '#id': 'id'
-    },
-    ExpressionAttributeValues: {
-      ':gameId': gameId
+    Key: {
+      'id': gameId
     },
     AttributesToGet: ['players']
   };
@@ -48,12 +44,8 @@ const getPlayers = han.handler(async (gameId) => {
 const getGameState = han.handler(async (gameId) => {
   const params = {
     TableName: 'quizz-o-tron-games',
-    KeyConditionExpression: '#id = :gameId',
-    ExpressionAttributeNames: {
-      '#id': 'id'
-    },
-    ExpressionAttributeValues: {
-      ':gameId': gameId
+    Key: {
+      'id': gameId
     },
     AttributesToGet: ['state']
   };
@@ -63,7 +55,7 @@ const getGameState = han.handler(async (gameId) => {
   if (!result.Item) {
     throw new Error('Game not found.');
   } else {
-    console.log(`State found : ${result.Item}`);
+    console.log(`State found : ${result.Item.state}`);
   }
 
   return { id: gameId, state: result.Item.state };

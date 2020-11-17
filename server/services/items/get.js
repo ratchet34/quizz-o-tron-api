@@ -46,7 +46,7 @@ const getItemByType = han.handler(async (itemType) => {
     console.log(result);
     throw new Error('Item not found.');
   } else {
-    console.log(`Items found : ${result.Items}`);
+    console.log(`Items found : ${result.Items.length}`);
   }
   // Return the retrieved item
   return result.Items;

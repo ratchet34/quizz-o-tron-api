@@ -1,7 +1,10 @@
+const seedrandom = require('seedrandom');
 const han = require('../../../libs/handler-lib');
 const dynamoDb = require('../../../libs/dynamodb-lib');
 const getGames = require('./get');
-const { gameStates, itemTypes } = require('../../../libs/enums');
+const getItem = require('../items/get');
+const { gameStates, itemTypes, stateStartItem, stateNextItem } = require('../../../libs/vars');
+const { _ } = require('underscore');
 
 
 const joinGameWithId = han.handler(async ({gameId, username}) => {
@@ -47,14 +50,24 @@ const updatePlayerStatus = han.handler(async ({gameId, username, status}) => {
     ReturnValues:"ALL_NEW"
   };
 
-  console.log(`inside updatePlayer, params: ${JSON.stringify(params)}`);
-
   const result = await dynamoDb.update(params);
 
   if (!result.Attributes) {
     throw new Error('Update failed');
   } else {
-    console.log(`Update successful : ${JSON.stringify(result.Attributes.players)}`);
+    var countPlayerByStatus = _.countBy(Object.entries(result.Attributes.players).map(x => x[1].status), (i) => i);
+    var playerCount = Object.entries(result.Attributes.players).length;
+    var currGameStateRes = await getGames.getGameState(gameId);
+    var currGameState = JSON.parse(currGameStateRes.body).state;
+    if( countPlayerByStatus.game_loaded === playerCount && currGameState === gameStates[1] ) {
+      await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
+    } else if ( countPlayerByStatus.player_ready === playerCount && currGameState === gameStates[2] ) {
+      await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
+    } else if ( countPlayerByStatus.item_running === playerCount && currGameState === gameStates[4] ) {
+      await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
+    } else if ( countPlayerByStatus.player_ready === playerCount && currGameState === gameStates[5] ) {
+      await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
+    }
   }
 
   console.log('end of updatePlayer');
@@ -63,15 +76,71 @@ const updatePlayerStatus = han.handler(async ({gameId, username, status}) => {
 })
 
 const updateStatus = han.handler(async ({gameId, username, state}) => {
+
+  var currGameStateRes = await getGames.getGameState(gameId);
+  var currGameState = JSON.parse(currGameStateRes.body).state;
+  var newState = '';
+
+  if(state === 'next' && currGameState === gameStates[stateNextItem]) {
+    newState = gameStates[stateStartItem];
+  }
+  else if(state === 'next' && currGameState !== gameStates[stateNextItem]) {
+    newState = gameStates[gameStates.indexOf(currGameState)+1];
+  }
+  else if(state === 'end') {
+    newState = gameStates[gameStates.length - 1];
+  }
+  else {
+    throw new Error('Impossible State Case');
+  }
+
   var params = {
     TableName: 'quizz-o-tron-games',
     Key:{
         'id': gameId
     },
-    UpdateExpression: `SET state = ${gameStates[state]}`,
-    ConditionExpression: `host=:host`,
+    UpdateExpression: `SET #state = :ns`,
+    ExpressionAttributeNames: {
+      '#state': 'state'
+    },
     ExpressionAttributeValues: {
-      ':host' : username
+      ':ns': newState
+    },
+    ReturnValues:"ALL_NEW"
+  };
+
+  const result = await dynamoDb.update(params);
+
+  if (!result.Attributes) {
+    console.log('Update failed');
+    throw new Error('Update failed');
+  } else {
+    //if(newState === gameStates[2] || newState === gameStates[stateNextItem]) {
+    if(newState === gameStates[stateStartItem]) {
+      console.log('go next item');
+      await nextItem({gameId: gameId, username: username, itemType: result.Attributes.itemType});
+    }
+    console.log(`Update successful : ${result.Attributes}`);
+  }
+  
+  return { id: gameId, state: result.Attributes.state };
+});
+
+const updateItemType = han.handler(async ({gameId, username, itemType}) => {
+  console.log(itemType);
+  var params = {
+    TableName: 'quizz-o-tron-games',
+    Key:{
+        'id': gameId
+    },
+    UpdateExpression: `SET #it = :it`,
+    ConditionExpression: `host=:host`,
+    ExpressionAttributeNames: {
+      '#it': 'itemType'
+    },
+    ExpressionAttributeValues: {
+      ':it': itemType,
+      ':host': username
     },
     ReturnValues:"ALL_NEW"
   };
@@ -84,7 +153,7 @@ const updateStatus = han.handler(async ({gameId, username, state}) => {
     console.log(`Update successful : ${result.Attributes}`);
   }
   
-  return { id: gameId, state: result.Attributes.state };
+  return { id: gameId, itemType: result.Attributes.itemType };
 });
 
 const removePlayer = han.handler(async ({gameId, username}) => {
@@ -113,16 +182,27 @@ const removePlayer = han.handler(async ({gameId, username}) => {
   return { id: gameId, players: result.Attributes.players };
 });
 
-const nextItem = han.handler(async ({gameId, username, itemType}) => {
-  var game = await getGames.getGame(gameId);
+const nextItem = han.handler(async ({gameId, username}) => {
+  var gameRes = await getGames.getGame(gameId);
+  var game = JSON.parse(gameRes.body);
 
   const saveable = seedrandom('', {state: game.randomState});
-  
-  if (username === game.host) {
-    const items = game.customItems[itemType]?game.customItems[itemType]:await getItem.getAllItemIds().body;
-    game.currentItem = items[Math.floor(saveable() * items.length)].id;
-    game.randomState = saveable.state();
+  console.log(username);
+  console.log(JSON.stringify(game));
 
+  if (username === game.host || username === 'admin_user') {
+    //const items = game.customItems[game.itemType]?game.customItems[game.itemType]:await getItem.getItemByType(game.itemType).body;
+    var items = [];
+    if (game.itemType in game.customItems) {
+      items = game.customItems;
+    }
+    else {
+      var itemsRes = await getItem.getItemByType(game.itemType);
+      items = JSON.parse(itemsRes.body);
+    }
+    //Ajouter vérif item déjà fait
+    game.currentItem = items[Math.floor(saveable() * items.length)];
+    var newRandomState = saveable.state();
     var params = {
       TableName: 'quizz-o-tron-games',
       Key:{
@@ -135,7 +215,7 @@ const nextItem = han.handler(async ({gameId, username, itemType}) => {
       },
       ExpressionAttributeValues: {
         ':ci': game.currentItem,
-        ':rs': game.randomState
+        ':rs': newRandomState
       },
       ReturnValues:"ALL_NEW"
     };
@@ -191,4 +271,12 @@ const setCustomItems = han.handler(async ({gameId, username, customItems, itemTy
   }
 });
 
-module.exports = { joinGameWithId, updatePlayerStatus, updateStatus, removePlayer, nextItem, setCustomItems };
+module.exports = {
+  joinGameWithId,
+  updatePlayerStatus,
+  updateStatus,
+  removePlayer,
+  nextItem,
+  setCustomItems,
+  updateItemType
+};

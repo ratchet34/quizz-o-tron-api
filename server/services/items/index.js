@@ -1,7 +1,7 @@
 'use strict';
 const getItem = require('./get');
 const putItem = require('./put');
-const { itemTypes } = require('../../../libs/enums');
+const { itemTypes } = require('../../../libs/vars');
 
 const getItems = async (req, res) => {
     if (req.query.itemType && itemTypes.includes(req.query.itemType)) {
