@@ -59,6 +59,10 @@ const getGames = async (req, res) => {
       const result = await getGame.getGameState(req.params.gameId);
       if (!result) return res.status(404).json({});
       return res.json(result);
+    } else if ( req.query.a === 'doneItems' ) {
+      const result = await getGame.getDoneItems(req.params.gameId);
+      if (!result) return res.status(404).json({});
+      return res.json(result);
     } else {
       res.status(400).send('No match for your request');
       return res;

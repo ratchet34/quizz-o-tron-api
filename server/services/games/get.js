@@ -1,6 +1,5 @@
 const han = require('../../../libs/handler-lib');
 const dynamoDb = require('../../../libs/dynamodb-lib');
-const getItem = require('../items/get');
 
 const getGame = han.handler(async (gameId) => {
   const params = {
@@ -53,13 +52,33 @@ const getGameState = han.handler(async (gameId) => {
   const result = await dynamoDb.get(params);
 
   if (!result.Item) {
-    throw new Error('Game not found.');
+    throw new Error('Game state not found.');
   } else {
-    console.log(`State found : ${result.Item.state}`);
+    console.log(`Game state found : ${result.Item.state}`);
   }
 
   return { id: gameId, state: result.Item.state };
 });
 
+const getDoneItems = han.handler(async (gameId) => {
+  const params = {
+    TableName: 'quizz-o-tron-games',
+    Key: {
+      'id': gameId
+    },
+    AttributesToGet: ['doneItems']
+  };
 
-module.exports = { getGame, getPlayers, getGameState };
+  const result = await dynamoDb.get(params);
+
+  if (!result.Item) {
+    throw new Error('Done items not found.');
+  } else {
+    console.log(`Done items found : ${JSON.stringify(result.Item.doneItems)}`);
+  }
+
+  return { id: gameId, doneItems: result.Item.doneItems };
+})
+
+
+module.exports = { getGame, getPlayers, getGameState, getDoneItems };

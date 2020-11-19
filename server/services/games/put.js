@@ -18,7 +18,7 @@ const createGameWithHostAndId = han.handler(async ( {host, gameType} ) => {
   game.currentItem = {};
   game.itemType = '';
   game.players = { [game.host]: { points: 0, status: 'ready' } };
-  game.doneItems = [game.currentItem];
+  game.doneItems = [];
   game.state = gameStates[0];
   game.randomState = saveable.state();
   // Expire in 7 days

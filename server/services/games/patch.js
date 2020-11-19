@@ -59,13 +59,11 @@ const updatePlayerStatus = han.handler(async ({gameId, username, status}) => {
     var playerCount = Object.entries(result.Attributes.players).length;
     var currGameStateRes = await getGames.getGameState(gameId);
     var currGameState = JSON.parse(currGameStateRes.body).state;
-    if( countPlayerByStatus.game_loaded === playerCount && currGameState === gameStates[1] ) {
+    if ( countPlayerByStatus.player_ready === playerCount && currGameState === gameStates[1] ) {
       await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
-    } else if ( countPlayerByStatus.player_ready === playerCount && currGameState === gameStates[2] ) {
+    } else if ( countPlayerByStatus.item_running === playerCount && currGameState === gameStates[3] ) {
       await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
-    } else if ( countPlayerByStatus.item_running === playerCount && currGameState === gameStates[4] ) {
-      await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
-    } else if ( countPlayerByStatus.player_ready === playerCount && currGameState === gameStates[5] ) {
+    } else if ( countPlayerByStatus.player_ready === playerCount && currGameState === gameStates[4] ) {
       await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
     }
   }
@@ -187,8 +185,6 @@ const nextItem = han.handler(async ({gameId, username}) => {
   var game = JSON.parse(gameRes.body);
 
   const saveable = seedrandom('', {state: game.randomState});
-  console.log(username);
-  console.log(JSON.stringify(game));
 
   if (username === game.host || username === 'admin_user') {
     //const items = game.customItems[game.itemType]?game.customItems[game.itemType]:await getItem.getItemByType(game.itemType).body;
@@ -200,8 +196,20 @@ const nextItem = han.handler(async ({gameId, username}) => {
       var itemsRes = await getItem.getItemByType(game.itemType);
       items = JSON.parse(itemsRes.body);
     }
+    var doneItemsRes = await getGames.getDoneItems(gameId);
+    var doneItems = JSON.parse(doneItemsRes.body).doneItems;
+
     //Ajouter vérif item déjà fait
-    game.currentItem = items[Math.floor(saveable() * items.length)];
+    var randomIndex = Math.floor(saveable() * items.length);
+    
+    while (doneItems.includes(items[randomIndex].id)) {
+      randomIndex = Math.floor(saveable() * items.length);
+    }
+    
+    game.currentItem = items[randomIndex];
+
+    addToDoneItems({gameId: gameId, itemId: game.currentItem.id});
+
     var newRandomState = saveable.state();
     var params = {
       TableName: 'quizz-o-tron-games',
@@ -223,9 +231,9 @@ const nextItem = han.handler(async ({gameId, username}) => {
     const result = await dynamoDb.update(params);
 
     if (!result.Attributes) {
-      throw new Error('Update failed');
+      throw new Error('Next item failed');
     } else {
-      console.log(`Update successful : ${result.Attributes}`);
+      console.log(`Next item successful : ${result.Attributes}`);
     }
     
     return { id: gameId, currentItem: result.Attributes.currentItem, randomState: result.Attributes.randomState };
@@ -233,6 +241,36 @@ const nextItem = han.handler(async ({gameId, username}) => {
     throw new Error('You are not the host of the game');
   }
 });
+
+const addToDoneItems = han.handler(async ({gameId, itemId}) => {
+  console.log('doneItemId: ' + itemId);
+  var params = {
+    TableName: 'quizz-o-tron-games',
+    Key:{
+        'id': gameId
+    },
+    UpdateExpression: `SET #di = list_append(if_not_exists(#di, :empty_list), :item)`,
+    ExpressionAttributeNames: {
+      '#di': 'doneItems',
+    },
+    ExpressionAttributeValues: {
+      ':empty_list': [],
+      ':item': itemId
+    },
+    ReturnValues:"ALL_NEW"
+  };
+
+  const result = await dynamoDb.update(params);
+
+  if (!result.Attributes) {
+    throw new Error('Add to done failed');
+  } else {
+    console.log(`Add to done successful : ${result.Attributes}`);
+  }
+  
+  return { id: gameId, doneItems: result.Attributes.doneItems };
+
+})
 
 const setCustomItems = han.handler(async ({gameId, username, customItems, itemType}) => {
   

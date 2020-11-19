@@ -8,6 +8,6 @@ let router = express.Router();
 
 router.get('/:gameId', gameService.getGames);
 router.post('/', gameService.createGame);
-router.patch('/', gameService.updateGame)
+router.patch('/', gameService.updateGame);
 
 module.exports = router;
