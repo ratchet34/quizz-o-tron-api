@@ -1,5 +1,6 @@
 const han = require('../../../libs/handler-lib');
 const dynamoDb = require('../../../libs/dynamodb-lib');
+const getItem = require('../items/get');
 
 const getLogin = han.handler(async ({username, password}) => {
     const params = {
@@ -42,10 +43,17 @@ const getReported = han.handler(async ({username, password}) => {
         if (!result.Item) {
         throw new Error('Items not found.');
         } else {
-        console.log(`Items found : ${result.Item}`);
+        console.log(`Items found : ${JSON.stringify(result.Item)}`);
         }
 
-        return { items: result.Item.items }
+        var itemsToSend = [];
+        for (let i = 0; i < result.Item.items.length; i++) {
+            var fullItemRes = await getItem.getItem(result.Item.items[i]);
+            var fullItem = JSON.parse(fullItemRes.body);
+            console.log(fullItem);
+            itemsToSend.push(fullItem[0]);
+        }
+        return { items: itemsToSend }
     } else {
         throw new Error('Not Authorized');
     }

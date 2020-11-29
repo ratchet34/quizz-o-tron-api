@@ -2,6 +2,7 @@
 const getGame = require('./get');
 const putGame = require('./put');
 const patchGame = require('./patch');
+const patch = require('../admin/patch');
 
 const updateGame = async (req, res) => {
   //Update Player Status
@@ -28,6 +29,10 @@ const updateGame = async (req, res) => {
   //Update Game Item Type
   } else if ( req.body.itemType && req.body.gameId && req.body.username ) {
     const result = await patchGame.updateItemType( {gameId: req.body.gameId, username: req.body.username, itemType: req.body.itemType} );
+    return res.json(result);
+  //Update player points
+  } else if ( req.body.points && req.body.gameId && req.body.username ) {
+    const result = await patchGame.addPointsToPlayer( {gameId: req.body.gameId, username: req.body.username, points: req.body.points } );
     return res.json(result);
   //Query based requests
   } else if( req.body.gameId && req.body.username && req.query.a) {

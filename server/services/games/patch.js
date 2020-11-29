@@ -309,6 +309,36 @@ const setCustomItems = han.handler(async ({gameId, username, customItems, itemTy
   }
 });
 
+const addPointsToPlayer = han.handler(async ({gameId, username, points}) => {
+  var params = {
+    TableName: 'quizz-o-tron-games',
+    Key:{
+        'id': gameId
+    },
+    UpdateExpression: `ADD #pl.#us.#pts :p`,
+    ConditionExpression: `attribute_exists(#pl.#us)`,
+    ExpressionAttributeNames: {
+      '#pl': 'players',
+      '#us': username,
+      '#pts': 'points'
+    },
+    ExpressionAttributeValues: {
+      ':p': points,
+    },
+    ReturnValues:"ALL_NEW"
+  }; 
+
+  const result = await dynamoDb.update(params);
+
+  if (!result.Attributes) {
+    throw new Error('Update failed');
+  } else {
+    console.log(`Update successful : ${result.Attributes}`);
+  }
+  
+  return { id: gameId, players: result.Attributes.players };
+})
+
 module.exports = {
   joinGameWithId,
   updatePlayerStatus,
@@ -316,5 +346,6 @@ module.exports = {
   removePlayer,
   nextItem,
   setCustomItems,
-  updateItemType
+  updateItemType,
+  addPointsToPlayer
 };
