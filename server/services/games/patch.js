@@ -32,13 +32,19 @@ const joinGameWithId = han.handler(async ({gameId, username}) => {
 })
 
 const updatePlayerStatus = han.handler(async ({gameId, username, status}) => {
+
+  var conditionExpression = 'attribute_exists(#pl.#user)';
+  if(status === 'buzz') {
+    conditionExpression = conditionExpression + ' AND NOT #pl CONTAINS buzz';
+  }
+
   var params = {
     TableName: 'quizz-o-tron-games',
     Key:{
         'id': gameId
     },
     UpdateExpression: `SET #pl.#user.#status = :status`,
-    ConditionExpression: `attribute_exists(#pl.#user)`,
+    ConditionExpression: conditionExpression,
     ExpressionAttributeNames: {
       '#pl': 'players',
       '#user': username,
@@ -65,6 +71,8 @@ const updatePlayerStatus = han.handler(async ({gameId, username, status}) => {
       await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
     } else if ( countPlayerByStatus.player_ready === playerCount && currGameState === gameStates[4] ) {
       await updateStatus({gameId: gameId, username: 'admin_user', state: 'next'});
+    } else if (status === 'buzz') {
+      await updateStatus({gameId: gameId, username: 'admin_user', state: 'buzz'});
     }
   }
 
@@ -79,7 +87,12 @@ const updateStatus = han.handler(async ({gameId, username, state}) => {
   var currGameState = JSON.parse(currGameStateRes.body).state;
   var newState = '';
 
-  if(state === 'next' && currGameState === gameStates[stateNextItem]) {
+  if(state === 'buzz') {
+    newState = '99_buzzing';
+  } else if(state ==='resume') {
+    newState = gameStates[4];
+  }
+  else if(state === 'next' && currGameState === gameStates[stateNextItem]) {
     newState = gameStates[stateStartItem];
   }
   else if(state === 'next' && currGameState !== gameStates[stateNextItem]) {
@@ -208,7 +221,7 @@ const nextItem = han.handler(async ({gameId, username}) => {
     
     game.currentItem = items[randomIndex];
 
-    addToDoneItems({gameId: gameId, itemId: game.currentItem.id});
+    await addToDoneItems({gameId: gameId, itemId: game.currentItem.id});
 
     var newRandomState = saveable.state();
     var params = {
@@ -255,7 +268,7 @@ const addToDoneItems = han.handler(async ({gameId, itemId}) => {
     },
     ExpressionAttributeValues: {
       ':empty_list': [],
-      ':item': itemId
+      ':item': [itemId]
     },
     ReturnValues:"ALL_NEW"
   };
@@ -337,7 +350,7 @@ const addPointsToPlayer = han.handler(async ({gameId, username, points}) => {
   }
   
   return { id: gameId, players: result.Attributes.players };
-})
+});
 
 module.exports = {
   joinGameWithId,

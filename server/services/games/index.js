@@ -2,6 +2,7 @@
 const getGame = require('./get');
 const putGame = require('./put');
 const patchGame = require('./patch');
+const deleteGame = require('./patch');
 const patch = require('../admin/patch');
 
 const updateGame = async (req, res) => {
@@ -21,6 +22,10 @@ const updateGame = async (req, res) => {
   //Remove Player from Game
   } else if ( req.body.remove && req.body.gameId && req.body.username ) {
     const result = await patchGame.removePlayer( {gameId: req.body.gameId, username: req.body.username} );
+    return res.json(result);
+  //Cancel a game
+  } else if ( req.body.cancel && req.body.gameId && req.body.username ) {
+    const result = await deleteGame.cancelGame( {gameId: req.body.gameId, username: req.body.username} );
     return res.json(result);
   //Set Game Custom Items
   } else if ( req.body.customItems && req.body.itemType && req.body.gameId && req.body.username ) {

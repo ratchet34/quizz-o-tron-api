@@ -31,7 +31,7 @@ const createGameWithHostAndId = han.handler(async ( {host, gameType} ) => {
 
   const result = await dynamoDb.put(params);
 
-  return { id: game.id, host: game.host, seed: game.seed, currentItem: game.currentItem, players: game.players, state: game.state };
+  return { id: game.id, host: game.host, seed: game.seed, currentItem: game.currentItem, players: game.players, state: game.state, gameType: game.gameType };
 });
 
 module.exports = { createGameWithHostAndId };

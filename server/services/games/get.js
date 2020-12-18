@@ -17,7 +17,7 @@ const getGame = han.handler(async (gameId) => {
     console.log(`Game found : ${result.Item}`);
   }
   
-  return { id: result.Item.id, host: result.Item.host, seed: result.Item.seed, currentItem: result.Item.currentItem, customItems: result.Item.customItems, players: result.Item.players, state: result.Item.state, itemType: result.Item.itemType, randomState: result.Item.randomState };
+  return { id: result.Item.id, host: result.Item.host, seed: result.Item.seed, currentItem: result.Item.currentItem, customItems: result.Item.customItems, players: result.Item.players, state: result.Item.state, itemType: result.Item.itemType, randomState: result.Item.randomState, gameType: result.Item.gameType };
 });
 
 const getPlayers = han.handler(async (gameId) => {
