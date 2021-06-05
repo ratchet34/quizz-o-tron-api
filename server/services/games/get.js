@@ -80,5 +80,31 @@ const getDoneItems = han.handler(async (gameId) => {
   return { id: gameId, doneItems: result.Item.doneItems };
 })
 
+const getIsSomeoneBuzzing = han.handler(async (gameId) => {
+  const params = {
+    TableName: 'quizz-o-tron-games',
+    Key: {
+      'id': gameId
+    },
+    AttributesToGet: ['players']
+  };
 
-module.exports = { getGame, getPlayers, getGameState, getDoneItems };
+  const result = await dynamoDb.get(params);
+
+  if (!result.Item) {
+    throw new Error('Players not found.');
+  } else {
+    console.log(`Players found : ${JSON.stringify(result.Item.players)}`);
+  }
+
+  let players = result.Item.players
+  let buzzPlayer = null
+  for(let [key, value] of Object.entries(players)) {
+    if (value.status === 'buzz') buzzPlayer = key
+  }
+  return {bool: Object.values(players).some(p => p.status === 'buzz'), player: buzzPlayer}
+
+})
+
+
+module.exports = { getGame, getPlayers, getGameState, getDoneItems, getIsSomeoneBuzzing };

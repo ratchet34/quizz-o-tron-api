@@ -12,7 +12,7 @@ const updateGame = async (req, res) => {
     return res.json(result);
   //Update Game Status
   } else if( req.body.state && req.body.gameId && req.body.username ) {
-    if (req.body.state === 'next' || req.body.state === 'end') {
+    if (req.body.state === 'next' || req.body.state === 'end' || req.body.state === 'resume') {
       const result = await patchGame.updateStatus( {gameId: req.body.gameId, username: req.body.username, state: req.body.state} );
       return res.json(result);
     }

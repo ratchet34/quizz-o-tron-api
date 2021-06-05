@@ -34,10 +34,13 @@ const joinGameWithId = han.handler(async ({gameId, username}) => {
 const updatePlayerStatus = han.handler(async ({gameId, username, status}) => {
 
   var conditionExpression = 'attribute_exists(#pl.#user)';
+  
   if(status === 'buzz') {
-    conditionExpression = conditionExpression + ' AND NOT #pl CONTAINS buzz';
+    var isBuzzing = await getGames.getIsSomeoneBuzzing(gameId);
+    var test = JSON.parse(isBuzzing.body).bool
+    if (test) return('Someone is already buzzing')
   }
-
+  
   var params = {
     TableName: 'quizz-o-tron-games',
     Key:{
@@ -90,7 +93,11 @@ const updateStatus = han.handler(async ({gameId, username, state}) => {
   if(state === 'buzz') {
     newState = '99_buzzing';
   } else if(state ==='resume') {
+    console.log('resume game')
     newState = gameStates[4];
+    var isBuzzing = await getGames.getIsSomeoneBuzzing(gameId);
+    var player = JSON.parse(isBuzzing.body).player
+    await updatePlayerStatus({gameId: gameId, username: player, status: 'item_running'})
   }
   else if(state === 'next' && currGameState === gameStates[stateNextItem]) {
     newState = gameStates[stateStartItem];
@@ -126,7 +133,6 @@ const updateStatus = han.handler(async ({gameId, username, state}) => {
     console.log('Update failed');
     throw new Error('Update failed');
   } else {
-    //if(newState === gameStates[2] || newState === gameStates[stateNextItem]) {
     if(newState === gameStates[stateStartItem]) {
       console.log('go next item');
       await nextItem({gameId: gameId, username: username, itemType: result.Attributes.itemType});
